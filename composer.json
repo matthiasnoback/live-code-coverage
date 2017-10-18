@@ -1,9 +1,9 @@
 {
   "name": "matthiasnoback/live-code-coverage",
   "require": {
-    "php": "^5.6",
+    "php": "^5.6 || ^7.0",
     "webmozart/assert": "^1.2",
-    "phpunit/php-code-coverage": "^5.2"
+    "phpunit/php-code-coverage": "^4.0 || ^5.2"
   },
   "autoload": {
     "psr-4": {
@@ -14,6 +14,6 @@
     "symfony/process": "^3.3",
     "symfony/finder": "^3.3",
     "symfony/filesystem": "^3.3",
-    "phpunit/phpunit": "^6.4"
+    "phpunit/phpunit": "^5.7 || ^6.0"
   }
 }
