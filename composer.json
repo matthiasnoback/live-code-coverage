@@ -1,0 +1,13 @@
+{
+  "require": {
+    "php": "^7.0",
+    "webmozart/assert": "^1.2",
+    "phpunit/phpcov": "^4.0",
+    "phpunit/php-code-coverage": "^5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src/"
+    }
+  }
+}
