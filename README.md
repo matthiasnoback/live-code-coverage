@@ -1,5 +1,7 @@
 # Live code coverage
 
+[![Build Status](https://travis-ci.org/matthiasnoback/live-code-coverage.svg?branch=master)](https://travis-ci.org/matthiasnoback/live-code-coverage)
+
 This library should help you generate code coverage reports on a live server (it doesn't have to be a production server of course).
 
 Install this library using:

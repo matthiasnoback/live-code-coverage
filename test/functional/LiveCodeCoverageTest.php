@@ -10,10 +10,7 @@ final class LiveCodeCoverageTest extends TestCase
 {
     private $coverageDirectory;
 
-    /**
-     * @before
-     */
-    public function deleteCovFiles()
+    protected function setUp()
     {
         $this->coverageDirectory = __DIR__ . '/coverage';
 
@@ -32,6 +29,9 @@ final class LiveCodeCoverageTest extends TestCase
 
         $aProcess->run();
         $bProcess->run();
+
+        $this->assertProcessSuccessful($aProcess);
+        $this->assertProcessSuccessful($bProcess);
 
         /** @var Finder $finder */
         $finder = Finder::create()->name('*.cov')->in([$this->coverageDirectory]);
@@ -59,5 +59,17 @@ final class LiveCodeCoverageTest extends TestCase
     {
         $cov = include $filePath;
         $this->assertInstanceOf(CodeCoverage::class, $cov);
+    }
+
+    private function assertProcessSuccessful(Process $process)
+    {
+        if (!$process->isSuccessful()) {
+            $this->fail(
+                sprintf(
+                    "Process was not successful. Output:\n%s",
+                    $process->getOutput()
+                )
+            );
+        }
     }
 }
