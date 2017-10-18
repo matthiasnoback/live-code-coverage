@@ -2,4 +2,4 @@
 
 use LiveCodeCoverage\LiveCodeCoverage;
 
-LiveCodeCoverage::bootstrap(__DIR__ . '/../', __DIR__ . '/../coverage');
+LiveCodeCoverage::bootstrap(__DIR__ . '/coverage', __DIR__ . '/phpunit.xml.dist');

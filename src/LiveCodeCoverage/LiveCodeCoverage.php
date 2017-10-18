@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace LiveCodeCoverage;
 
@@ -9,28 +8,39 @@ use Webmozart\Assert\Assert;
 final class LiveCodeCoverage
 {
     /**
+     * @private
+     */
+    const COVERAGE_ID = 'live-coverage';
+
+    /**
      * @var CodeCoverage
      */
     private $codeCoverage;
-    private $fileNamePrefix;
-    private $reportDirectory;
 
-    private function __construct(CodeCoverage $codeCoverage, $reportDirectory, $fileNamePrefix)
+    /**
+     * @var string
+     */
+    private $storageDirectory;
+
+    private function __construct(CodeCoverage $codeCoverage, $storageDirectory)
     {
         $this->codeCoverage = $codeCoverage;
 
-        Assert::directory($reportDirectory);
-        Assert::writable($reportDirectory);
-        $this->reportDirectory = $reportDirectory;
-
-        $this->fileNamePrefix = $fileNamePrefix;
+        Assert::directory($storageDirectory);
+        Assert::writable($storageDirectory);
+        $this->storageDirectory = $storageDirectory;
     }
 
-    public static function bootstrap($projectRootDir, $reportDirectory, $fileNamePrefix = 'live-coverage')
+    public static function bootstrap($storageDirectory, $phpunitConfigFilePath = null)
     {
-        $codeCoverage = CodeCoverageFactory::createFromPhpUnitConfiguration($projectRootDir . '/phpunit.xml.dist');
+        if ($phpunitConfigFilePath !== null) {
+            Assert::file($phpunitConfigFilePath);
+            $codeCoverage = CodeCoverageFactory::createFromPhpUnitConfiguration($phpunitConfigFilePath);
+        } else {
+            $codeCoverage = CodeCoverageFactory::createDefault();
+        }
 
-        $liveCodeCoverage = new self($codeCoverage, $reportDirectory, $fileNamePrefix);
+        $liveCodeCoverage = new self($codeCoverage, $storageDirectory);
 
         $liveCodeCoverage->start();
         register_shutdown_function([$liveCodeCoverage, 'stopAndSave']);
@@ -38,7 +48,7 @@ final class LiveCodeCoverage
 
     private function start()
     {
-        $this->codeCoverage->start('Live coverage');
+        $this->codeCoverage->start(self::COVERAGE_ID);
     }
 
     public function stopAndSave()
@@ -49,17 +59,14 @@ final class LiveCodeCoverage
         file_put_contents($this->generateCovFileName(), $cov);
     }
 
-    /**
-     * @return string
-     */
     private function generateCovFileName()
     {
         $fileNameParts = [
-            $this->fileNamePrefix,
+            self::COVERAGE_ID,
             date('YmdHis'),
-            uniqid('', false)
+            uniqid('', true)
         ];
 
-        return $this->reportDirectory . '/' . implode('-', $fileNameParts) . '.cov';
+        return $this->storageDirectory . '/' . implode('-', $fileNameParts) . '.cov';
     }
 }

@@ -1,18 +1,19 @@
 <?php
-declare(strict_types=1);
 
 namespace LiveCodeCoverage;
 
 use PHPUnit\Util\Configuration;
-use PHPUnit\Util\Filter;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use Webmozart\Assert\Assert;
 
 final class CodeCoverageFactory
 {
-    public static function createFromPhpUnitConfiguration($phpunitFilePath): CodeCoverage
+    /**
+     * @param string $phpunitFilePath
+     * @return CodeCoverage
+     */
+    public static function createFromPhpUnitConfiguration($phpunitFilePath)
     {
-        $codeCoverage = new CodeCoverage();
+        $codeCoverage = self::createDefault();
 
         self::configure($codeCoverage, Configuration::getInstance($phpunitFilePath));
 
@@ -57,5 +58,13 @@ final class CodeCoverageFactory
         foreach ($filterConfiguration['whitelist']['exclude']['file'] as $file) {
             $filter->removeFileFromWhitelist($file);
         }
+    }
+
+    /**
+     * @return CodeCoverage
+     */
+    public static function createDefault()
+    {
+        return new CodeCoverage();
     }
 }
