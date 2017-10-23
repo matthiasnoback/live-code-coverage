@@ -10,7 +10,7 @@ final class LiveCodeCoverage
     /**
      * @private
      */
-    const COVERAGE_ID = 'live-coverage';
+    private $coverage_id = 'live-coverage';
 
     /**
      * @var CodeCoverage
@@ -22,16 +22,16 @@ final class LiveCodeCoverage
      */
     private $storageDirectory;
 
-    private function __construct(CodeCoverage $codeCoverage, $storageDirectory)
+    private function __construct(CodeCoverage $codeCoverage, $storageDirectory, $coverage_id)
     {
         $this->codeCoverage = $codeCoverage;
-
+        $this->coverage_id = $coverage_id;
         Assert::directory($storageDirectory);
         Assert::writable($storageDirectory);
         $this->storageDirectory = $storageDirectory;
     }
 
-    public static function bootstrap($storageDirectory, $phpunitConfigFilePath = null)
+    public static function bootstrap($storageDirectory, $phpunitConfigFilePath = null, $coverage_id = 'live-coverage')
     {
         if ($phpunitConfigFilePath !== null) {
             Assert::file($phpunitConfigFilePath);
@@ -40,7 +40,7 @@ final class LiveCodeCoverage
             $codeCoverage = CodeCoverageFactory::createDefault();
         }
 
-        $liveCodeCoverage = new self($codeCoverage, $storageDirectory);
+        $liveCodeCoverage = new self($codeCoverage, $storageDirectory, $coverage_id);
 
         $liveCodeCoverage->start();
         register_shutdown_function([$liveCodeCoverage, 'stopAndSave']);
@@ -48,7 +48,7 @@ final class LiveCodeCoverage
 
     private function start()
     {
-        $this->codeCoverage->start(self::COVERAGE_ID);
+        $this->codeCoverage->start($this->coverage_id);
     }
 
     public function stopAndSave()
@@ -62,7 +62,7 @@ final class LiveCodeCoverage
     private function generateCovFileName()
     {
         $fileNameParts = [
-            self::COVERAGE_ID,
+            $this->coverage_id,
             date('YmdHis'),
             uniqid('', true)
         ];
