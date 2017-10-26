@@ -40,6 +40,7 @@ final class LiveCodeCoverage
             $codeCoverage = CodeCoverageFactory::createDefault();
         }
 
+        Assert::regex($coverage_id, '/^[\w\-]+$/');
         $liveCodeCoverage = new self($codeCoverage, $storageDirectory, $coverage_id);
 
         $liveCodeCoverage->start();
