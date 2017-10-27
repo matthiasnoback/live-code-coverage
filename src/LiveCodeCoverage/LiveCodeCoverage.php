@@ -24,6 +24,7 @@ final class LiveCodeCoverage
 
     private function __construct(CodeCoverage $codeCoverage, $storageDirectory, $coverage_id)
     {
+        Assert::regex($coverage_id, '/^[\w\-]+$/');
         $this->codeCoverage = $codeCoverage;
         $this->coverage_id = $coverage_id;
         Assert::directory($storageDirectory);
@@ -40,7 +41,6 @@ final class LiveCodeCoverage
             $codeCoverage = CodeCoverageFactory::createDefault();
         }
 
-        Assert::regex($coverage_id, '/^[\w\-]+$/');
         $liveCodeCoverage = new self($codeCoverage, $storageDirectory, $coverage_id);
 
         $liveCodeCoverage->start();
