@@ -10,7 +10,7 @@ final class LiveCodeCoverage
     /**
      * @private
      */
-    private $coverage_id = 'live-coverage';
+    private $coverageId;
 
     /**
      * @var CodeCoverage
@@ -26,7 +26,7 @@ final class LiveCodeCoverage
     {
         Assert::regex($coverage_id, '/^[\w\-]+$/');
         $this->codeCoverage = $codeCoverage;
-        $this->coverage_id = $coverage_id;
+        $this->coverageId = $coverage_id;
         Assert::directory($storageDirectory);
         Assert::writable($storageDirectory);
         $this->storageDirectory = $storageDirectory;
@@ -49,7 +49,7 @@ final class LiveCodeCoverage
 
     private function start()
     {
-        $this->codeCoverage->start($this->coverage_id);
+        $this->codeCoverage->start($this->coverageId);
     }
 
     public function stopAndSave()
@@ -63,7 +63,7 @@ final class LiveCodeCoverage
     private function generateCovFileName()
     {
         $fileNameParts = [
-            $this->coverage_id,
+            $this->coverageId,
             date('YmdHis'),
             uniqid('', true)
         ];
