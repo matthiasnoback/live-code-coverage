@@ -19,17 +19,20 @@ In your front controller (e.g. `index.php`), add the following:
 
 use LiveCodeCoverage\LiveCodeCoverage;
 
-$liveCodeCoverage = LiveCodeCoverage::bootstrap(
+$shutDownCodeCoverage = LiveCodeCoverage::bootstrap(
+    function () { return (bool)getenv('CODE_COVERAGE_ENABLED'); },
     __DIR__ . '/../var/coverage',
     __DIR__ . '/../phpunit.xml.dist'
 );
 
-// Run your web application now
+// Run your web application now...
 
-$liveCodeCoverage->stopAndSave();
+// This will save and store collected coverage data:
+$shutDownCodeCoverage();
 ```
 
-- The first argument is the directory where all the collected coverage data will be stored (`*.cov` files). This directory should already exist and be writable.
+- The first argument passed to `LiveCodeCoverage::bootstrap()` is a callable that will be used to determine if code coverage is enabled at all. The example shows how you can use an environment variable for that. Make 
+- The second argument is the directory where all the collected coverage data will be stored (`*.cov` files). If this directory doesn't exist yet, it will be created.
 - The second argument is the path to a PHPUnit configuration file. Its `<filter>` section will be used to configure the code coverage whitelist. For example, this `phpunit.xml.dist` file might look something like this:
 
 ```xml
@@ -50,12 +53,12 @@ If you don't provide a PHPUnit configuration file, no filters will be applied, s
 If your application is a legacy application which `exit()`s or `die()`s before execution reaches the end of your front controller, the bootstrap should be slightly different:
 
 ```php
-$liveCodeCoverage = LiveCodeCoverage::bootstrap(
+$shutDownCodeCoverage = LiveCodeCoverage::bootstrap(
     // ...
 );
-$liveCodeCoverage->stopAndSaveOnExit();
+register_shutdown_function($shutDownCodeCoverage);
 
-// Run your web application now
+// Run your web application now...
 ```
 
 ## Generating code coverage reports (HTML, Clover, etc.)

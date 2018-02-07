@@ -29,8 +29,22 @@ final class LiveCodeCoverage
         $this->storageDirectory = $storageDirectory;
     }
 
-    public static function bootstrap($storageDirectory, $phpunitConfigFilePath = null, $coverageId = 'live-coverage')
+    /**
+     * @param callable $coverageEnabled
+     * @param string $storageDirectory
+     * @param string|null $phpunitConfigFilePath
+     * @param string $coverageId
+     * @return callable
+     */
+    public static function bootstrap($coverageEnabled, $storageDirectory, $phpunitConfigFilePath = null, $coverageId = 'live-coverage')
     {
+        Assert::isCallable($coverageEnabled);
+        if (!$coverageEnabled()) {
+            return function () {
+                // do nothing - code coverage is not enabled
+            };
+        }
+
         if ($phpunitConfigFilePath !== null) {
             Assert::file($phpunitConfigFilePath);
             $codeCoverage = CodeCoverageFactory::createFromPhpUnitConfiguration($phpunitConfigFilePath);
@@ -42,16 +56,26 @@ final class LiveCodeCoverage
 
         $liveCodeCoverage->start();
 
-        return $liveCodeCoverage;
+        return [$liveCodeCoverage, 'stopAndSave'];
     }
 
-    public static function bootstrapRemoteCoverage($storageDirectory, $phpunitConfigFilePath = null)
+    /**
+     * @param callable $coverageEnabled
+     * @param string $storageDirectory
+     * @param null $phpunitConfigFilePath
+     * @return callable
+     */
+    public static function bootstrapRemoteCoverage($coverageEnabled, $storageDirectory, $phpunitConfigFilePath = null)
     {
+        Assert::isCallable($coverageEnabled);
+        if (!$coverageEnabled()) {
+            return function () {
+                // do nothing - code coverage is not enabled
+            };
+        }
+
         $coverageGroup = isset($_GET['coverage_group']) ? $_GET['coverage_group'] :
             (isset($_COOKIE['coverage_group']) ? $_COOKIE['coverage_group'] : null);
-
-        $coverageId = isset($_GET['coverage_id']) ? $_GET['coverage_id'] :
-            (isset($_COOKIE['coverage_id']) ? $_COOKIE['coverage_id'] : 'live-coverage');
 
         $storageDirectory .= ($coverageGroup ? '/' . $coverageGroup : '');
 
@@ -60,7 +84,10 @@ final class LiveCodeCoverage
             exit;
         }
 
-        return self::bootstrap($storageDirectory, $phpunitConfigFilePath, $coverageId);
+        $coverageId = isset($_GET['coverage_id']) ? $_GET['coverage_id'] :
+            (isset($_COOKIE['coverage_id']) ? $_COOKIE['coverage_id'] : 'live-coverage');
+
+        return self::bootstrap($coverageEnabled, $storageDirectory, $phpunitConfigFilePath, $coverageId);
     }
 
     private function start()
@@ -78,11 +105,6 @@ final class LiveCodeCoverage
 
         header('Content-Type: text/plain');
         echo serialize($codeCoverage);
-    }
-
-    public function stopAndSaveOnExit()
-    {
-        register_shutdown_function([$this, 'stopAndSave']);
     }
 
     public function stopAndSave()

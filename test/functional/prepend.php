@@ -2,5 +2,9 @@
 
 use LiveCodeCoverage\LiveCodeCoverage;
 
-$liveCodeCoverage = LiveCodeCoverage::bootstrap(__DIR__ . '/coverage', __DIR__ . '/phpunit.xml.dist');
-$liveCodeCoverage->stopAndSaveOnExit();
+$shutDownCodeCoverage = LiveCodeCoverage::bootstrap(
+    function() { return true; },
+    __DIR__ . '/coverage',
+    __DIR__ . '/phpunit.xml.dist'
+);
+register_shutdown_function($shutDownCodeCoverage);
