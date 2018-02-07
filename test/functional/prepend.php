@@ -3,7 +3,7 @@
 use LiveCodeCoverage\LiveCodeCoverage;
 
 $shutDownCodeCoverage = LiveCodeCoverage::bootstrap(
-    function() { return true; },
+    true,
     __DIR__ . '/coverage',
     __DIR__ . '/phpunit.xml.dist'
 );

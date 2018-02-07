@@ -30,16 +30,16 @@ final class LiveCodeCoverage
     }
 
     /**
-     * @param callable $coverageEnabled
+     * @param bool $collectCodeCoverage
      * @param string $storageDirectory
      * @param string|null $phpunitConfigFilePath
      * @param string $coverageId
      * @return callable
      */
-    public static function bootstrap($coverageEnabled, $storageDirectory, $phpunitConfigFilePath = null, $coverageId = 'live-coverage')
+    public static function bootstrap($collectCodeCoverage, $storageDirectory, $phpunitConfigFilePath = null, $coverageId = 'live-coverage')
     {
-        Assert::isCallable($coverageEnabled);
-        if (!$coverageEnabled()) {
+        Assert::boolean($collectCodeCoverage);
+        if (!$collectCodeCoverage) {
             return function () {
                 // do nothing - code coverage is not enabled
             };
@@ -60,15 +60,15 @@ final class LiveCodeCoverage
     }
 
     /**
-     * @param callable $coverageEnabled
+     * @param bool $coverageEnabled
      * @param string $storageDirectory
      * @param null $phpunitConfigFilePath
      * @return callable
      */
     public static function bootstrapRemoteCoverage($coverageEnabled, $storageDirectory, $phpunitConfigFilePath = null)
     {
-        Assert::isCallable($coverageEnabled);
-        if (!$coverageEnabled()) {
+        Assert::boolean($coverageEnabled);
+        if (!$coverageEnabled) {
             return function () {
                 // do nothing - code coverage is not enabled
             };
@@ -87,7 +87,12 @@ final class LiveCodeCoverage
         $coverageId = isset($_GET['coverage_id']) ? $_GET['coverage_id'] :
             (isset($_COOKIE['coverage_id']) ? $_COOKIE['coverage_id'] : 'live-coverage');
 
-        return self::bootstrap($coverageEnabled, $storageDirectory, $phpunitConfigFilePath, $coverageId);
+        return self::bootstrap(
+            isset($_COOKIE['collect_code_coverage']) && (bool)$_COOKIE['collect_code_coverage'],
+            $storageDirectory,
+            $phpunitConfigFilePath,
+            $coverageId
+        );
     }
 
     private function start()
