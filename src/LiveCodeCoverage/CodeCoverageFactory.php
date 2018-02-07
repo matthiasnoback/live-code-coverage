@@ -16,7 +16,7 @@ final class CodeCoverageFactory
         $codeCoverage = self::createDefault();
 
         // Accomodate for PHPUnit 5.7
-        if (class_exists('PHPUnit_Util_Configuration')) {
+        if (!class_exists('PHPUnit\Util\Configuration')) {
             class_alias('PHPUnit_Util_Configuration', 'PHPUnit\Util\Configuration');
         }
 

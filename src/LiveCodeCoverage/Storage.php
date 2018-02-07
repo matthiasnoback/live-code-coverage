@@ -36,6 +36,8 @@ final class Storage
      */
     public static function loadFromDirectory($storageDirectory)
     {
+        Assert::string($storageDirectory);
+
         $coverage = new CodeCoverage();
 
         if (!is_dir($storageDirectory)) {

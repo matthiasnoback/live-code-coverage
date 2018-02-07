@@ -59,68 +59,22 @@ final class LiveCodeCoverage
         return [$liveCodeCoverage, 'stopAndSave'];
     }
 
-    /**
-     * @param bool $coverageEnabled
-     * @param string $storageDirectory
-     * @param null $phpunitConfigFilePath
-     * @return callable
-     */
-    public static function bootstrapRemoteCoverage($coverageEnabled, $storageDirectory, $phpunitConfigFilePath = null)
-    {
-        Assert::boolean($coverageEnabled);
-        if (!$coverageEnabled) {
-            return function () {
-                // do nothing - code coverage is not enabled
-            };
-        }
-
-        $coverageGroup = isset($_GET['coverage_group']) ? $_GET['coverage_group'] :
-            (isset($_COOKIE['coverage_group']) ? $_COOKIE['coverage_group'] : null);
-
-        $storageDirectory .= ($coverageGroup ? '/' . $coverageGroup : '');
-
-        if (isset($_GET['export_code_coverage'])) {
-            self::exportCoverageData($storageDirectory);
-            exit;
-        }
-
-        $coverageId = isset($_GET['coverage_id']) ? $_GET['coverage_id'] :
-            (isset($_COOKIE['coverage_id']) ? $_COOKIE['coverage_id'] : 'live-coverage');
-
-        return self::bootstrap(
-            isset($_COOKIE['collect_code_coverage']) && (bool)$_COOKIE['collect_code_coverage'],
-            $storageDirectory,
-            $phpunitConfigFilePath,
-            $coverageId
-        );
-    }
-
     private function start()
     {
         $this->codeCoverage->start($this->coverageId);
     }
 
     /**
-     * @param $coverageDirectory
-     * @return void
+     * Stop collecting code coverage data and save it.
      */
-    public static function exportCoverageData($coverageDirectory)
-    {
-        $codeCoverage = Storage::loadFromDirectory($coverageDirectory);
-
-        header('Content-Type: text/plain');
-        echo serialize($codeCoverage);
-    }
-
     public function stopAndSave()
     {
         $this->codeCoverage->stop();
 
-        Storage::storeCodeCoverage($this->codeCoverage, $this->storageDirectory, $this->covFileName());
-    }
-
-    private function covFileName()
-    {
-        return uniqid(date('YmdHis'), true);
+        Storage::storeCodeCoverage(
+            $this->codeCoverage,
+            $this->storageDirectory,
+            uniqid(date('YmdHis'), true)
+        );
     }
 }
