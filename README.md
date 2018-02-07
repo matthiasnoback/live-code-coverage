@@ -12,21 +12,21 @@ composer require matthiasnoback/live-code-coverage
 
 ## Collecting code coverage data
 
-At the top of your front controller (e.g. `index.php`), add the following:
+In your front controller (e.g. `index.php`), add the following:
 
 ```php
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-
 use LiveCodeCoverage\LiveCodeCoverage;
 
-LiveCodeCoverage::bootstrap(
-    __DIR__ . '/../coverage',
+$liveCodeCoverage = LiveCodeCoverage::bootstrap(
+    __DIR__ . '/../var/coverage',
     __DIR__ . '/../phpunit.xml.dist'
 );
 
 // Run your web application now
+
+$liveCodeCoverage->stopAndSave();
 ```
 
 - The first argument is the directory where all the collected coverage data will be stored (`*.cov` files). This directory should already exist and be writable.
@@ -47,12 +47,23 @@ Any configuration directive that's [available in PHPUnit](https://phpunit.de/man
 
 If you don't provide a PHPUnit configuration file, no filters will be applied, so you will get a coverage report for all the code in your project, including vendor and test code if applicable.
 
+If your application is a legacy application which `exit()`s or `die()`s before execution reaches the end of your front controller, the bootstrap should be slightly different:
+
+```php
+$liveCodeCoverage = LiveCodeCoverage::bootstrap(
+    // ...
+);
+$liveCodeCoverage->stopAndSaveOnExit();
+
+// Run your web application now
+```
+
 ## Generating code coverage reports (HTML, Clover, etc.)
 
 To merge all the coverage data and generate a report for it, install Sebastian Bergmann's [`phpcov` tool](https://github.com/sebastianbergmann/phpcov). Run it like this (or in any other way you like):
 
 ```bash
-phpcov merge --html=./coverage/html ./coverage
+phpcov merge --html=./coverage/html ./var/coverage
 ```
 
 ## Downsides

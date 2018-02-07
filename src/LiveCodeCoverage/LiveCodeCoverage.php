@@ -22,17 +22,14 @@ final class LiveCodeCoverage
      */
     private $storageDirectory;
 
-    private function __construct(CodeCoverage $codeCoverage, $storageDirectory, $coverage_id)
+    private function __construct(CodeCoverage $codeCoverage, $storageDirectory, $coverageId)
     {
-        Assert::regex($coverage_id, '/^[\w\-]+$/');
         $this->codeCoverage = $codeCoverage;
-        $this->coverageId = $coverage_id;
-        Assert::directory($storageDirectory);
-        Assert::writable($storageDirectory);
+        $this->coverageId = $coverageId;
         $this->storageDirectory = $storageDirectory;
     }
 
-    public static function bootstrap($storageDirectory, $phpunitConfigFilePath = null, $coverage_id = 'live-coverage')
+    public static function bootstrap($storageDirectory, $phpunitConfigFilePath = null, $coverageId = 'live-coverage')
     {
         if ($phpunitConfigFilePath !== null) {
             Assert::file($phpunitConfigFilePath);
@@ -41,10 +38,11 @@ final class LiveCodeCoverage
             $codeCoverage = CodeCoverageFactory::createDefault();
         }
 
-        $liveCodeCoverage = new self($codeCoverage, $storageDirectory, $coverage_id);
+        $liveCodeCoverage = new self($codeCoverage, $storageDirectory, $coverageId);
 
         $liveCodeCoverage->start();
-        register_shutdown_function([$liveCodeCoverage, 'stopAndSave']);
+
+        return $liveCodeCoverage;
     }
 
     private function start()
@@ -52,22 +50,20 @@ final class LiveCodeCoverage
         $this->codeCoverage->start($this->coverageId);
     }
 
+    public function stopAndSaveOnExit()
+    {
+        register_shutdown_function([$this, 'stopAndSave']);
+    }
+
     public function stopAndSave()
     {
         $this->codeCoverage->stop();
 
-        $cov = '<?php return unserialize(' . var_export(serialize($this->codeCoverage), true) . ');';
-        file_put_contents($this->generateCovFileName(), $cov);
+        Storage::storeCodeCoverage($this->codeCoverage, $this->storageDirectory, $this->covFileName());
     }
 
-    private function generateCovFileName()
+    private function covFileName()
     {
-        $fileNameParts = [
-            $this->coverageId,
-            date('YmdHis'),
-            uniqid('', true)
-        ];
-
-        return $this->storageDirectory . '/' . implode('-', $fileNameParts) . '.cov';
+        return uniqid(date('YmdHis'), true);
     }
 }

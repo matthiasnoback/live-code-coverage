@@ -39,17 +39,8 @@ final class LiveCodeCoverageTest extends TestCase
 
         foreach ($finder as $covFile) {
             $filePath = (string)$covFile;
-            $this->assertFileNameStartsWithExpectedPrefix($filePath);
             $this->assertIncludedFileReturnsCodeCoverageObject($filePath);
         }
-    }
-
-    /**
-     * @param $filePath
-     */
-    private function assertFileNameStartsWithExpectedPrefix($filePath)
-    {
-        $this->assertRegExp('/^live-coverage/', basename($filePath));
     }
 
     /**
