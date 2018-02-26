@@ -33,7 +33,7 @@ $shutDownCodeCoverage();
 
 - The first argument passed to `LiveCodeCoverage::bootstrap()` is a callable that will be used to determine if code coverage is enabled at all. The example shows how you can use an environment variable for that. Make 
 - The second argument is the directory where all the collected coverage data will be stored (`*.cov` files). If this directory doesn't exist yet, it will be created.
-- The second argument is the path to a PHPUnit configuration file. Its `<filter>` section will be used to configure the code coverage whitelist. For example, this `phpunit.xml.dist` file might look something like this:
+- The third argument is the path to a PHPUnit configuration file. Its `<filter>` section will be used to configure the code coverage whitelist. For example, this `phpunit.xml.dist` file might look something like this:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
