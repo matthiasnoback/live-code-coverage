@@ -20,7 +20,7 @@ In your front controller (e.g. `index.php`), add the following:
 use LiveCodeCoverage\LiveCodeCoverage;
 
 $shutDownCodeCoverage = LiveCodeCoverage::bootstrap(
-    function () { return (bool)getenv('CODE_COVERAGE_ENABLED'); },
+    (bool)getenv('CODE_COVERAGE_ENABLED'),
     __DIR__ . '/../var/coverage',
     __DIR__ . '/../phpunit.xml.dist'
 );
@@ -31,7 +31,7 @@ $shutDownCodeCoverage = LiveCodeCoverage::bootstrap(
 $shutDownCodeCoverage();
 ```
 
-- The first argument passed to `LiveCodeCoverage::bootstrap()` is a callable that will be used to determine if code coverage is enabled at all. The example shows how you can use an environment variable for that. Make 
+- The first argument passed to `LiveCodeCoverage::bootstrap()` is a boolean that will be used to determine if code coverage is enabled at all. The example shows how you can use an environment variable for that.
 - The second argument is the directory where all the collected coverage data will be stored (`*.cov` files). If this directory doesn't exist yet, it will be created.
 - The third argument is the path to a PHPUnit configuration file. Its `<filter>` section will be used to configure the code coverage whitelist. For example, this `phpunit.xml.dist` file might look something like this:
 
