@@ -1,5 +1,7 @@
 {
   "name": "matthiasnoback/live-code-coverage",
+  "description": "Generate code coverage reports on a live server",
+  "license": "MIT",
   "require": {
     "php": "^5.6 || ^7.0",
     "webmozart/assert": "^1.2",

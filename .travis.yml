@@ -13,4 +13,5 @@ install:
   - composer install --prefer-dist
 
 script:
+  - composer validate --strict
   - vendor/bin/phpunit
