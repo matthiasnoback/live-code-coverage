@@ -10,7 +10,7 @@ final class LiveCodeCoverageTest extends TestCase
 {
     private $coverageDirectory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->coverageDirectory = __DIR__ . '/coverage';
 
