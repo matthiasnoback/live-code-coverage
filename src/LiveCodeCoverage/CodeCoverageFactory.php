@@ -2,7 +2,8 @@
 
 namespace LiveCodeCoverage;
 
-use PHPUnit\Util\Configuration;
+use PHPUnit\TextUI\Configuration\Configuration;
+use PHPUnit\TextUI\Configuration\Loader;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 
 final class CodeCoverageFactory
@@ -15,54 +16,53 @@ final class CodeCoverageFactory
     {
         $codeCoverage = self::createDefault();
 
-        // Accomodate for PHPUnit 5.7
-        if (!class_exists('PHPUnit\Util\Configuration')) {
-            class_alias('PHPUnit_Util_Configuration', 'PHPUnit\Util\Configuration');
-        }
-
-        self::configure($codeCoverage, Configuration::getInstance($phpunitFilePath));
+        $loader = new Loader();
+        self::configure($codeCoverage, $loader->load($phpunitFilePath));
 
         return $codeCoverage;
     }
 
     private static function configure(CodeCoverage $codeCoverage, Configuration $configuration)
     {
-        $filter = $codeCoverage->filter();
-        $filterConfiguration = $configuration->getFilterConfiguration();
+        $codeCoverageFilter = $codeCoverage->filter();
+        $filterConfiguration = $configuration->filter();
 
         // The following code is copied from PHPUnit\TextUI\TestRunner
 
-        $codeCoverage->setAddUncoveredFilesFromWhitelist(
-            $filterConfiguration['whitelist']['addUncoveredFilesFromWhitelist']
-        );
+        if ($filterConfiguration->hasNonEmptyWhitelist()) {
+            $codeCoverage->setAddUncoveredFilesFromWhitelist(
+                $filterConfiguration->addUncoveredFilesFromWhitelist()
+            );
 
-        $codeCoverage->setProcessUncoveredFilesFromWhitelist(
-            $filterConfiguration['whitelist']['processUncoveredFilesFromWhitelist']
-        );
-
-        foreach ($filterConfiguration['whitelist']['include']['directory'] as $dir) {
-            $filter->addDirectoryToWhitelist(
-                $dir['path'],
-                $dir['suffix'],
-                $dir['prefix']
+            $codeCoverage->setProcessUncoveredFilesFromWhitelist(
+                $filterConfiguration->processUncoveredFilesFromWhitelist()
             );
         }
 
-        foreach ($filterConfiguration['whitelist']['include']['file'] as $file) {
-            $filter->addFileToWhitelist($file);
-        }
-
-        foreach ($filterConfiguration['whitelist']['exclude']['directory'] as $dir) {
-            $filter->removeDirectoryFromWhitelist(
-                $dir['path'],
-                $dir['suffix'],
-                $dir['prefix']
+        foreach ($filterConfiguration->directories() as $directory) {
+            $codeCoverageFilter->addDirectoryToWhitelist(
+                $directory->path(),
+                $directory->suffix(),
+                $directory->prefix()
             );
         }
 
-        foreach ($filterConfiguration['whitelist']['exclude']['file'] as $file) {
-            $filter->removeFileFromWhitelist($file);
+        foreach ($filterConfiguration->files() as $file) {
+            $codeCoverageFilter->addFileToWhitelist($file->path());
         }
+
+        foreach ($filterConfiguration->excludeDirectories() as $directory) {
+            $codeCoverageFilter->removeDirectoryFromWhitelist(
+                $directory->path(),
+                $directory->suffix(),
+                $directory->prefix()
+            );
+        }
+
+        foreach ($filterConfiguration->excludeFiles() as $file) {
+            $codeCoverageFilter->removeFileFromWhitelist($file->path());
+        }
+
     }
 
     /**

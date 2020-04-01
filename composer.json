@@ -3,10 +3,10 @@
   "description": "Generate code coverage reports on a live server",
   "license": "MIT",
   "require": {
-    "php": "^7.1",
+    "php": "^7.3",
     "webmozart/assert": "^1.2",
-    "phpunit/php-code-coverage": "^4.0 || ^5.2 || ^6.0 || ^7.0 || ^8.0",
-    "phpunit/phpunit": "^5.7 || ^6.0 || ^7.0 || ^8.0 || ^9.0"
+    "phpunit/php-code-coverage": "^8.0",
+    "phpunit/phpunit": "^9.0"
   },
   "autoload": {
     "psr-4": {
