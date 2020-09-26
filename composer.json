@@ -5,8 +5,8 @@
   "require": {
     "php": "^7.3",
     "webmozart/assert": "^1.2",
-    "phpunit/php-code-coverage": "^8.0",
-    "phpunit/phpunit": "^9.0"
+    "phpunit/php-code-coverage": "^9.0",
+    "phpunit/phpunit": "^9.3"
   },
   "autoload": {
     "psr-4": {

@@ -2,9 +2,11 @@
 
 namespace LiveCodeCoverage;
 
-use PHPUnit\TextUI\Configuration\Configuration;
-use PHPUnit\TextUI\Configuration\Loader;
+use PHPUnit\TextUI\XmlConfiguration\Configuration;
+use PHPUnit\TextUI\XmlConfiguration\Loader;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Driver\Selector;
+use SebastianBergmann\CodeCoverage\Filter;
 
 final class CodeCoverageFactory
 {
@@ -25,42 +27,45 @@ final class CodeCoverageFactory
     private static function configure(CodeCoverage $codeCoverage, Configuration $configuration)
     {
         $codeCoverageFilter = $codeCoverage->filter();
-        $filterConfiguration = $configuration->filter();
+        $codeCoverageConfiguration = $configuration->codeCoverage();
 
         // The following code is copied from PHPUnit\TextUI\TestRunner
+        if ($codeCoverageConfiguration->hasNonEmptyListOfFilesToBeIncludedInCodeCoverageReport()) {
+            if ($codeCoverageConfiguration->includeUncoveredFiles()) {
+                $codeCoverage->includeUncoveredFiles();
+            } else {
+                $codeCoverage->excludeUncoveredFiles();
+            }
 
-        if ($filterConfiguration->hasNonEmptyWhitelist()) {
-            $codeCoverage->setAddUncoveredFilesFromWhitelist(
-                $filterConfiguration->addUncoveredFilesFromWhitelist()
-            );
-
-            $codeCoverage->setProcessUncoveredFilesFromWhitelist(
-                $filterConfiguration->processUncoveredFilesFromWhitelist()
-            );
+            if ($codeCoverageConfiguration->processUncoveredFiles()) {
+                $codeCoverage->processUncoveredFiles();
+            } else {
+                $codeCoverage->doNotProcessUncoveredFiles();
+            }
         }
 
-        foreach ($filterConfiguration->directories() as $directory) {
-            $codeCoverageFilter->addDirectoryToWhitelist(
+        foreach ($codeCoverageConfiguration->directories() as $directory) {
+            $codeCoverageFilter->includeDirectory(
                 $directory->path(),
                 $directory->suffix(),
                 $directory->prefix()
             );
         }
 
-        foreach ($filterConfiguration->files() as $file) {
-            $codeCoverageFilter->addFileToWhitelist($file->path());
+        foreach ($codeCoverageConfiguration->files() as $file) {
+            $codeCoverageFilter->includeFile($file->path());
         }
 
-        foreach ($filterConfiguration->excludeDirectories() as $directory) {
-            $codeCoverageFilter->removeDirectoryFromWhitelist(
+        foreach ($codeCoverageConfiguration->excludeDirectories() as $directory) {
+            $codeCoverageFilter->excludeDirectory(
                 $directory->path(),
                 $directory->suffix(),
                 $directory->prefix()
             );
         }
 
-        foreach ($filterConfiguration->excludeFiles() as $file) {
-            $codeCoverageFilter->removeFileFromWhitelist($file->path());
+        foreach ($codeCoverageConfiguration->excludeFiles() as $file) {
+            $codeCoverageFilter->excludeFile($file->path());
         }
 
     }
@@ -70,6 +75,9 @@ final class CodeCoverageFactory
      */
     public static function createDefault()
     {
-        return new CodeCoverage();
+        $filter = new Filter();
+        $driverSelector = new Selector();
+        $driver = $driverSelector->forLineCoverage($filter);
+        return new CodeCoverage($driver, $filter);
     }
 }
