@@ -2,6 +2,7 @@
 
 namespace LiveCodeCoverage;
 
+use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\FilterMapper;
 use PHPUnit\TextUI\XmlConfiguration\Configuration;
 use PHPUnit\TextUI\XmlConfiguration\Loader;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
@@ -26,7 +27,6 @@ final class CodeCoverageFactory
 
     private static function configure(CodeCoverage $codeCoverage, Configuration $configuration)
     {
-        $codeCoverageFilter = $codeCoverage->filter();
         $codeCoverageConfiguration = $configuration->codeCoverage();
 
         // The following code is copied from PHPUnit\TextUI\TestRunner
@@ -44,30 +44,11 @@ final class CodeCoverageFactory
             }
         }
 
-        foreach ($codeCoverageConfiguration->directories() as $directory) {
-            $codeCoverageFilter->includeDirectory(
-                $directory->path(),
-                $directory->suffix(),
-                $directory->prefix()
-            );
-        }
-
-        foreach ($codeCoverageConfiguration->files() as $file) {
-            $codeCoverageFilter->includeFile($file->path());
-        }
-
-        foreach ($codeCoverageConfiguration->excludeDirectories() as $directory) {
-            $codeCoverageFilter->excludeDirectory(
-                $directory->path(),
-                $directory->suffix(),
-                $directory->prefix()
-            );
-        }
-
-        foreach ($codeCoverageConfiguration->excludeFiles() as $file) {
-            $codeCoverageFilter->excludeFile($file->path());
-        }
-
+        /*
+         * `FilterMapper` is not covered by PHPUnit's backward-compatibility promise, but let's use it instead of
+         * copying it.
+         */
+        (new FilterMapper())->map($codeCoverage->filter(), $configuration->codeCoverage());
     }
 
     /**

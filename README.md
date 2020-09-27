@@ -46,7 +46,8 @@ $shutDownCodeCoverage();
 </phpunit>
 ```
 
-Any configuration directive that's [available in PHPUnit](https://phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.whitelisting-files) works for this library too.
+Most configuration directives that are [available in PHPUnit](https://phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.whitelisting-files) work for this library too.
+If you notice that something doesn't work, please submit an issue.
 
 If you don't provide a PHPUnit configuration file, no filters will be applied, so you will get a coverage report for all the code in your project, including vendor and test code if applicable.
 
