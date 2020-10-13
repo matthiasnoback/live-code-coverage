@@ -4,6 +4,7 @@ namespace LiveCodeCoverage;
 
 use DirectoryIterator;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Report\PHP;
 use Webmozart\Assert\Assert;
 
 final class Storage
@@ -25,9 +26,10 @@ final class Storage
             }
         }
 
-        $cov = '<?php return unserialize(' . var_export(serialize($coverage), true) . ');';
         $filePath = $storageDirectory . '/' . $name . '.cov';
-        file_put_contents($filePath, $cov);
+
+        $php = new PHP();
+        $php->process($coverage, $filePath);
     }
 
     /**
