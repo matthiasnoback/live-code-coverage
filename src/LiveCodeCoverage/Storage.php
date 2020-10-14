@@ -40,7 +40,7 @@ final class Storage
     {
         Assert::string($storageDirectory);
 
-        $coverage = new CodeCoverage();
+        $coverage = CodeCoverageFactory::createDefault();
 
         if (!is_dir($storageDirectory)) {
             return $coverage;
